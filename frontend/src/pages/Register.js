@@ -8,6 +8,7 @@ import Select from 'react-select';
 import Autocomplete from 'react-google-autocomplete';
 import { isObjEmpty } from '../utils/Utils';
 import { toast } from 'react-toastify';
+import classnames from 'classnames';
 
 const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -45,26 +46,26 @@ function Register() {
 
     useEffect(() => {
         if (isSuccess) {
-          toast.success('User registered successfully');
-          navigate('/login');
+            toast.success('User registered successfully');
+            navigate('/login');
         }
-    
+
         if (isError) {
-          console.log(error);
-        //   if (Array.isArray((error as any).data.error)) {
-        //     (error as any).data.error.forEach((el: any) =>
-        //       toast.error(el.message, {
-        //         position: 'top-right',
-        //       })
-        //     );
-        //   } else {
-        //     toast.error((error as any).data.message, {
-        //       position: 'top-right',
-        //     });
-        //   }
+            console.log(error);
+            //   if (Array.isArray((error as any).data.error)) {
+            //     (error as any).data.error.forEach((el: any) =>
+            //       toast.error(el.message, {
+            //         position: 'top-right',
+            //       })
+            //     );
+            //   } else {
+            //     toast.error((error as any).data.message, {
+            //       position: 'top-right',
+            //     });
+            //   }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [isLoading]);
+    }, [isLoading]);
     console.log(errors)
 
     return (
@@ -81,9 +82,9 @@ function Register() {
                             <FormGroup>
                                 <Label>Firstname</Label>
                                 <input
-                                    className='form-control'
+                                    className={`form-control ${classnames({ 'is-invalid': errors.firstName })}`}
                                     type="text"
-                                    id="firstname"
+                                    id="firstName"
                                     {...register("firstName", { required: true })}
                                 />
                                 {errors.firstname && <span className="text-danger">Firstname is required.</span>}
@@ -91,9 +92,9 @@ function Register() {
                             <FormGroup>
                                 <Label>Lastname</Label>
                                 <input
-                                    className='form-control'
+                                    className={`form-control ${classnames({ 'is-invalid': errors.lastName })}`}
                                     type="text"
-                                    id="lastname"
+                                    id="lastName"
                                     {...register("lastName", { required: true })}
                                 />
                                 {errors.lastname && <span className="text-danger">Lastname is required.</span>}
@@ -101,7 +102,7 @@ function Register() {
                             <FormGroup>
                                 <Label>Email</Label>
                                 <input
-                                    className='form-control'
+                                    className={`form-control ${classnames({ 'is-invalid': errors.email })}`}
                                     type="email"
                                     id="email"
                                     {...register("email", { required: true })}
@@ -115,7 +116,10 @@ function Register() {
                                     control={control}
                                     rules={{ required: true }}
                                     render={({ field }) => (
-                                        <Select {...field} options={genderOptions} />
+                                        <Select
+                                            {...field}
+                                            options={genderOptions}
+                                        />
                                     )}
                                 />
                                 {errors.gender && (
@@ -143,7 +147,7 @@ function Register() {
                             <FormGroup>
                                 <Label>Password</Label>
                                 <input
-                                    className='form-control'
+                                    className={`form-control ${classnames({ 'is-invalid': errors.password })}`}
                                     type="password"
                                     id="password"
                                     {...register("password", { required: true })}
@@ -152,7 +156,13 @@ function Register() {
                             </FormGroup>
 
                             <div className='mt-4'>
-                                <Button color="primary" className='btn-block' type="submit">Login</Button>
+                                <Button color="dark" className='btn-block' type="submit">Register</Button>
+                            </div>
+                            <div className='mt-4 d-flex justify-content-center'>
+                                <span className='me-2'>Already have an account?</span>
+                                <Link to="/login" className='text-decoration-none'>
+                                    <span className='fw-bold text-danger'>Login Here</span>
+                                </Link>
                             </div>
 
                         </Form>

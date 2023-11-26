@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const { registerValidation, loginValidation } = require('../utils/validation');
+const verifyUser = require('../utils/verifyToken');
 
 const saltLength = 10;
 // eslint-disable-next-line prefer-const
@@ -84,6 +85,7 @@ router.post('/login', async (req, res) => {
   const response = {
     userData,
     accessToken,
+    status: 'success'
   };
   res.cookie('refreshToken', refreshToken, {
     secure: process.env.NODE_ENV !== 'development',
@@ -92,5 +94,11 @@ router.post('/login', async (req, res) => {
   });
   return res.send(response);
 });
+
+router.get('/logout', async (req, res) => {
+  res.cookie('refreshToken', '', { maxAge: 1 });
+  return res.status(200).json({ status: 'success' });
+});
+
 
 module.exports = router;

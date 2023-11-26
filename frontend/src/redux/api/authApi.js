@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { userApi } from './userApi';
+import { removeToken, setToken } from '../../utils/Utils';
+import { logout } from '../features/userSlice';
 
 const BASE_URL = process.env.REACT_APP_SERVER_ENDPOINT;
 
@@ -29,7 +31,8 @@ export const authApi = createApi({
       },
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled;
+          const response = await queryFulfilled;
+          setToken(response.data.accessToken)
           await dispatch(userApi.endpoints.getMe.initiate(null));
         } catch (error) {}
       },
@@ -40,6 +43,12 @@ export const authApi = createApi({
           url: 'logout',
           credentials: 'include',
         };
+      },
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        try {
+          removeToken();
+          dispatch(logout());
+        } catch (error) {}
       },
     }),
   }),

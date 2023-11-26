@@ -19,33 +19,35 @@ import { useLogoutUserMutation } from '../redux/api/authApi';
 import { toast } from 'react-toastify';
 import userImg from '../assets/images/user.png';
 import logoImg from '../assets/images/logo.png';
+import { getToken } from '../utils/Utils';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [logoutUser, { isLoading, isSuccess, error, isError }] =
         useLogoutUserMutation();
+    const accessToken = getToken();
     const user = useAppSelector((state) => state.userState.user);
     const navigate = useNavigate();
-    console.log(isLoading, isSuccess, error, isError)
     const toggle = () => setIsOpen(!isOpen);
-
+    console.log(user, '---------------')
     useEffect(() => {
         if (isSuccess) {
             window.location.href = '/login';
         }
-
+        
         if (isError) {
-            if (Array.isArray(error.data.error)) {
-                error.data.error.forEach(function (el) {
-                    toast.error(el.message, {
-                        position: 'top-right',
-                    });
-                });
-            } else {
-                toast.error(error.data.message, {
-                    position: 'top-right',
-                });
-            }
+            
+            // if (Array.isArray(error.data.error)) {
+            //     error.data.error.forEach(function (el) {
+            //         toast.error(el.message, {
+            //             position: 'top-right',
+            //         });
+            //     });
+            // } else {
+            //     toast.error(error.data.message, {
+            //         position: 'top-right',
+            //     });
+            // }
         }
     }, [isLoading]);
 
@@ -63,7 +65,7 @@ const Header = () => {
                     <NavbarToggler onClick={toggle} className="ms-auto" />
                     <Collapse isOpen={isOpen} navbar>
                         <Nav className="ms-auto" navbar>
-                            {!user && (
+                            {!accessToken && (
                                 <>
                                     <NavItem className='nav-item-responsive'>
                                         <NavLink onClick={() => navigate('/')}>Home</NavLink>
@@ -77,7 +79,7 @@ const Header = () => {
                                 </>
                             )}
 
-                            {user && (
+                            {accessToken && (
                                 <>
                                     <NavItem className='nav-item-responsive'>
                                         <NavLink onClick={() => navigate('/')}>Home</NavLink>

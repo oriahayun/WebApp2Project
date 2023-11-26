@@ -13,14 +13,9 @@ router.get('/', verifyUser(['admin']), async (req, res) => {
 });
 
 router.get('/me', verifyUser(['admin', 'user']), async (req, res) => {
-  console.log(req.user)
-  const totalCount = await User.countDocuments({});
-  const users = await User.find();
+  const user = await User.findById(req.user._id).select('-password -__v');
 
-  return res.send({
-    totalCount,
-    results: users
-  })
+  return res.send({ user: user })
 });
 
 module.exports = router;

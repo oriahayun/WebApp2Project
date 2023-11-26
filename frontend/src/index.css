@@ -24,6 +24,7 @@ code {
 .nav-item-responsive {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .main-board {
