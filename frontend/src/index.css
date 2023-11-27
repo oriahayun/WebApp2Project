@@ -100,3 +100,19 @@ header {
   outline: none!important;
   box-shadow: none!important;
 }
+
+.dropdown-item {
+  padding: 0.05rem 1.0rem;
+  clear: both;
+  text-align: inherit;
+  background-color: initial;
+  border: 0;
+}
+
+.dropdown-menu .dropdown-item {
+  cursor: pointer;
+}
+
+.mr-50, .mx-50 {
+  margin-right: 0.5rem!important;
+}

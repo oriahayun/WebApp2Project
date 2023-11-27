@@ -1,18 +1,22 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { authApi } from './api/authApi';
-import { userApi } from './api/userApi';
+import { getMeApi } from './api/getMeApi';
 import userReducer from './features/userSlice';
+import usersReducer from './features/usersSlice';
+import { userApi } from './api/userApi';
 
 export const store = configureStore({
   reducer: {
     [authApi.reducerPath]: authApi.reducer,
+    [getMeApi.reducerPath]: getMeApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     userState: userReducer,
+    usersState: usersReducer,
   },
   devTools: process.env.NODE_ENV === 'development',
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({}).concat([authApi.middleware, userApi.middleware]),
+    getDefaultMiddleware({}).concat([authApi.middleware, getMeApi.middleware, userApi.middleware]),
 });
 
 export var RootState = store.getState();

@@ -1,26 +1,27 @@
 import { Form, FormGroup, Label, Button, Card, CardBody } from 'reactstrap';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
-import { useLoginUserMutation } from '../redux/api/authApi';
-import { Link, useNavigate } from 'react-router-dom';
+import { useAdminLoginUserMutation } from '../redux/api/authApi';
+import { useNavigate } from 'react-router-dom';
 import logo1Img from '../assets/images/logo-1.png';
 import { toast } from 'react-toastify';
 import classnames from 'classnames';
 
-const Login = () => {
+function AdminLogin() {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const [loginUser, { isLoading, isError, error, isSuccess }] = useLoginUserMutation();
+    const [adminLoginUser, { isLoading, isError, error, isSuccess }] = useAdminLoginUserMutation();
 
     const navigate = useNavigate();
     const onSubmit = (data) => {
         console.log(data);
-        loginUser(data);
+        adminLoginUser(data);
     };
 
     useEffect(() => {
+        console.log(isLoading, isError, error, isSuccess)
         if (isSuccess) {
             toast.success('You successfully logged in');
-            navigate('/');
+            navigate('/admin/dashboard');
         }
         if (isError) {
             toast.error(error.data.message, {
@@ -37,7 +38,7 @@ const Login = () => {
                     <img src={logo1Img} alt='beautySN' style={{ height: '80px', width: 'auto' }} />
                 </div>
 
-                <h4 className="brand-logo">Login</h4>
+                <h4 className="brand-logo">Admin Login</h4>
                 <Card className='mb-0'>
                     <CardBody>
                         <Form onSubmit={handleSubmit(onSubmit)}>
@@ -64,13 +65,6 @@ const Login = () => {
                             <div className='mt-4'>
                                 <Button color="dark" className='btn-block' type="submit">Login</Button>
                             </div>
-                            <div className='mt-4 d-flex justify-content-center'>
-                                <span className='me-2'>Need an account?</span>
-                                <Link to="/register" className='text-decoration-none'>
-                                    <span className='fw-bold text-danger'>Register Here</span>
-                                </Link>
-                            </div>
-
                         </Form>
                     </CardBody>
                 </Card>
@@ -81,4 +75,4 @@ const Login = () => {
     );
 }
 
-export default Login;
+export default AdminLogin;

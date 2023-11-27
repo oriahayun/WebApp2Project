@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { userApi } from './userApi';
-import { removeToken, setToken } from '../../utils/Utils';
+import { getMeApi } from './getMeApi';
+import { removeToken, removeUserData, setToken, setUserData } from '../../utils/Utils';
 import { logout } from '../features/userSlice';
 
 const BASE_URL = process.env.REACT_APP_SERVER_ENDPOINT;
@@ -32,8 +32,27 @@ export const authApi = createApi({
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
           const response = await queryFulfilled;
-          setToken(response.data.accessToken)
-          await dispatch(userApi.endpoints.getMe.initiate(null));
+          setToken(response.data.accessToken);
+          setUserData(JSON.stringify(response.data.userData));
+          await dispatch(getMeApi.endpoints.getMe.initiate(null));
+        } catch (error) {}
+      },
+    }),
+    adminLoginUser: builder.mutation({
+      query(data) {
+        return {
+          url: 'admin/login',
+          method: 'POST',
+          body: data,
+          credentials: 'include',
+        };
+      },
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        try {
+          const response = await queryFulfilled;
+          setToken(response.data.accessToken);
+          setUserData(JSON.stringify(response.data.userData));
+          await dispatch(getMeApi.endpoints.getMe.initiate(null));
         } catch (error) {}
       },
     }),
@@ -47,6 +66,7 @@ export const authApi = createApi({
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
           removeToken();
+          removeUserData();
           dispatch(logout());
         } catch (error) {}
       },
@@ -56,6 +76,7 @@ export const authApi = createApi({
 
 export const {
   useLoginUserMutation,
+  useAdminLoginUserMutation,
   useRegisterUserMutation,
   useLogoutUserMutation,
 } = authApi;

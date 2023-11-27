@@ -14,7 +14,8 @@ const genderOptions = [
     { value: 'male', label: 'Male' },
     { value: 'female', label: 'Female' },
 ];
-function Register() {
+
+const Register = () => {
     const { register, setError, handleSubmit, formState: { errors }, control, clearErrors } = useForm();
     const [addressObj, setAddressObj] = useState();
 
@@ -52,17 +53,9 @@ function Register() {
 
         if (isError) {
             console.log(error);
-            //   if (Array.isArray((error as any).data.error)) {
-            //     (error as any).data.error.forEach((el: any) =>
-            //       toast.error(el.message, {
-            //         position: 'top-right',
-            //       })
-            //     );
-            //   } else {
-            //     toast.error((error as any).data.message, {
-            //       position: 'top-right',
-            //     });
-            //   }
+            toast.error(error.data, {
+                position: 'top-right',
+            });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);

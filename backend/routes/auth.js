@@ -64,14 +64,53 @@ router.post('/login', async (req, res) => {
   if (error) { return res.status(400).send(error.details[0].message); }
 
   const user = await User.findOneAndUpdate({ email: req.body.email }, { lastLogin: new Date() }).select('-__v');
-  if (!user) { return res.status(400).send('Email provided is not a registered account'); }
-  // if (user.role === 'admin') {
-  //   return res.status(400).send('User role is not allowed');
-  // }
+  if (!user) { return res.status(400).send({ message: 'Email provided is not a registered account' }); }
+  if (user.role !== 'user') {
+    return res.status(400).send({ message: 'User role is not allowed' });
+  }
+  const tokenExpiry = req.body.remember ? '60d' : authConfig.expireTime;
+  const validPass = await bcrypt.compare(req.body.password, user.password);
+  if (!validPass) return res.status(400).send({ message: 'Email or password not found!' });
+
+  // validation passed, create tokens
+  const accessToken = jwt.sign({ _id: user._id }, process.env.AUTH_TOKEN_SECRET, { expiresIn: tokenExpiry });
+  const refreshToken = jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: authConfig.refreshTokenExpireTime });
+  refreshTokens.push(refreshToken);
+
+  // remove password
+  delete user._doc.password;
+
+  const userData = user;
+  const response = {
+    userData,
+    accessToken,
+    status: 'success'
+  };
+  res.cookie('refreshToken', refreshToken, {
+    secure: process.env.NODE_ENV !== 'development',
+    expires: new Date(new Date().getTime() + 200 * 1440 * 60 * 1000),
+    httpOnly: true,
+  });
+  return res.send(response);
+});
+
+// Endpoint: Login Admin
+router.post('/admin/login', async (req, res) => {
+
+  // validate request
+  const { error } = loginValidation(req.body);
+  if (error) { return res.status(400).send(error.details[0].message); }
+
+  const user = await User.findOneAndUpdate({ email: req.body.email }, { lastLogin: new Date() }).select('-__v');
+  if (!user) { return res.status(400).send({ message: 'Email provided is not a registered account' }); }
+
+  if (user.role !== 'admin') {
+    return res.status(400).send({ message: 'User role is not allowed' });
+  }
 
   const tokenExpiry = req.body.remember ? '60d' : authConfig.expireTime;
   const validPass = await bcrypt.compare(req.body.password, user.password);
-  if (!validPass) return res.status(400).send('Email or password not found!');
+  if (!validPass) return res.status(400).send({ message: 'Email or password not found!' });
 
   // validation passed, create tokens
   const accessToken = jwt.sign({ _id: user._id }, process.env.AUTH_TOKEN_SECRET, { expiresIn: tokenExpiry });
