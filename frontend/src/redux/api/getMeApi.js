@@ -1,8 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { setUser } from '../features/userSlice';
-import { getToken } from '../../utils/Utils';
+import { logout, setUser } from '../features/userSlice';
+import { getToken, removeToken, removeUserData, setUserData } from '../../utils/Utils';
+import socketIOClient from 'socket.io-client';
 
 const BASE_URL = process.env.REACT_APP_SERVER_ENDPOINT;
+const socket = socketIOClient(BASE_URL);
 
 export const getMeApi = createApi({
   reducerPath: 'getMeApi',
@@ -10,7 +12,6 @@ export const getMeApi = createApi({
     baseUrl: `${BASE_URL}/api/users`,
     prepareHeaders: (headers) => {
       const accessToken = getToken();
-      console.log(accessToken, '-d-d-d-d')
       if (accessToken) {
         headers.set('Authorization', `Bearer ${accessToken}`);
       }
@@ -33,26 +34,48 @@ export const getMeApi = createApi({
         try {
           const { data } = await queryFulfilled;
           dispatch(setUser(data));
-        } catch (error) {}
+        } catch (error) { }
       },
     }),
-    users: builder.query({
+    updateMe: builder.mutation({
+      query({ id, user }) {
+        return {
+          url: `/update/${id}`,
+          method: "PUT",
+          credentials: "include",
+          body: user,
+        };
+      },
+      invalidatesTags: [{ type: "Users", id: "LIST" }],
+      async onQueryStarted(args, { queryFulfilled }) {
+        try {
+          const response = await queryFulfilled;
+          setUserData(JSON.stringify(response.data.user));
+        } catch (error) { }
+      },
+    }),
+    logoutUser: builder.mutation({
       query() {
         return {
-          url: '/',
+          url: 'logout',
           credentials: 'include',
         };
       },
-      transformResponse(result) {
-        return result.user;
-      },
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
-          dispatch(setUser(data));
+          const response = await queryFulfilled;
+          socket.emit('logout', response.data.userId);
+          socket.disconnect();
+          removeToken();
+          removeUserData();
+          dispatch(logout());
         } catch (error) {}
       },
     }),
   }),
 });
 
+export const {
+  useUpdateMeMutation,
+  useLogoutUserMutation,
+} = getMeApi

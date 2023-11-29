@@ -2,10 +2,9 @@ import { Container, Row, Col, Card, CardBody, Label, FormGroup, Spinner, Button,
 import classnames from 'classnames';
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from "react";
-import { useParams } from 'react-router-dom';
 import { useGetUserQuery, useUpdateUserMutation } from "../redux/api/userApi";
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const UserDetail = () => {
     const navigate = useNavigate();
@@ -14,6 +13,7 @@ const UserDetail = () => {
     const [updateUser, { isLoading, isError, error, isSuccess }] = useUpdateUserMutation();
     const { id } = useParams();
     const { data: user } = useGetUserQuery(id);
+    
     useEffect(() => {
         // set defaults
         if (user) {
@@ -36,6 +36,7 @@ const UserDetail = () => {
     const onSubmit = (data) => {
         setProcessing(true);
         updateUser({ id: id, user: data});
+        setProcessing(false);
     }
     return (
         <div className='main-board'>
@@ -67,7 +68,7 @@ const UserDetail = () => {
                                         </Col>
                                         <Col md="6" sm="12">
                                             <FormGroup>
-                                                <Label className="form-label" for="firstName">
+                                                <Label className="form-label" for="lastName">
                                                     Last Name*
                                                 </Label>
                                                 <input
@@ -81,7 +82,7 @@ const UserDetail = () => {
                                         </Col>
                                         <Col sm="12">
                                             <FormGroup>
-                                                <Label className="form-label" for="firstName">
+                                                <Label className="form-label" for="email">
                                                     Email*
                                                 </Label>
                                                 <input

@@ -1,86 +1,20 @@
 import React from 'react';
-import { Container, Row, Col, Button } from 'reactstrap';
+import { Row, Col } from 'reactstrap';
+import salonVideo from '../assets/images/salon.mp4';
 
 function Home() {
     return (
         <div className='main-board'>
-            <Container>
+            <div className='container-fluid'>
                 <Row>
                     <Col>
-                        <h1 className="display-4">Welcome to my Homepage!</h1>
-                        <p className="lead">This is a simple example of designing a homepage using Reactstrap.</p>
-                        <hr className="my-2" />
-                        <p>You can customize this content and style it as per your requirements.</p>
-                        <Button color="primary">Get Started</Button>
+                        <video autoPlay muted loop id="salonVideo">
+                            <source src={salonVideo} type="video/mp4" />
+                            Your browser does not support HTML5 video.
+                        </video>
                     </Col>
                 </Row>
-            </Container>
-            <Container>
-                <Row>
-                    <Col>
-                        <h1 className="display-4">Welcome to my Homepage!</h1>
-                        <p className="lead">This is a simple example of designing a homepage using Reactstrap.</p>
-                        <hr className="my-2" />
-                        <p>You can customize this content and style it as per your requirements.</p>
-                        <Button color="primary">Get Started</Button>
-                    </Col>
-                </Row>
-            </Container>
-            <Container>
-                <Row>
-                    <Col>
-                        <h1 className="display-4">Welcome to my Homepage!</h1>
-                        <p className="lead">This is a simple example of designing a homepage using Reactstrap.</p>
-                        <hr className="my-2" />
-                        <p>You can customize this content and style it as per your requirements.</p>
-                        <Button color="primary">Get Started</Button>
-                    </Col>
-                </Row>
-            </Container>
-            <Container>
-                <Row>
-                    <Col>
-                        <h1 className="display-4">Welcome to my Homepage!</h1>
-                        <p className="lead">This is a simple example of designing a homepage using Reactstrap.</p>
-                        <hr className="my-2" />
-                        <p>You can customize this content and style it as per your requirements.</p>
-                        <Button color="primary">Get Started</Button>
-                    </Col>
-                </Row>
-            </Container>
-            <Container>
-                <Row>
-                    <Col>
-                        <h1 className="display-4">Welcome to my Homepage!</h1>
-                        <p className="lead">This is a simple example of designing a homepage using Reactstrap.</p>
-                        <hr className="my-2" />
-                        <p>You can customize this content and style it as per your requirements.</p>
-                        <Button color="primary">Get Started</Button>
-                    </Col>
-                </Row>
-            </Container>
-            <Container>
-                <Row>
-                    <Col>
-                        <h1 className="display-4">Welcome to my Homepage!</h1>
-                        <p className="lead">This is a simple example of designing a homepage using Reactstrap.</p>
-                        <hr className="my-2" />
-                        <p>You can customize this content and style it as per your requirements.</p>
-                        <Button color="primary">Get Started</Button>
-                    </Col>
-                </Row>
-            </Container>
-            <Container>
-                <Row>
-                    <Col>
-                        <h1 className="display-4">Welcome to my Homepage!</h1>
-                        <p className="lead">This is a simple example of designing a homepage using Reactstrap.</p>
-                        <hr className="my-2" />
-                        <p>You can customize this content and style it as per your requirements.</p>
-                        <Button color="primary">Get Started</Button>
-                    </Col>
-                </Row>
-            </Container>
+            </div>
         </div>
     );
 }

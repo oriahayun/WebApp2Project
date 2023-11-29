@@ -1,10 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getMeApi } from './getMeApi';
-import { removeToken, removeUserData, setToken, setUserData } from '../../utils/Utils';
-import { logout } from '../features/userSlice';
+import { setToken, setUserData } from '../../utils/Utils';
+import socketIOClient from 'socket.io-client';
 
 const BASE_URL = process.env.REACT_APP_SERVER_ENDPOINT;
-
+const socket = socketIOClient(BASE_URL);
 export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
@@ -32,6 +32,7 @@ export const authApi = createApi({
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
           const response = await queryFulfilled;
+          socket.emit('login', response.data.userData._id);
           setToken(response.data.accessToken);
           setUserData(JSON.stringify(response.data.userData));
           await dispatch(getMeApi.endpoints.getMe.initiate(null));
@@ -50,24 +51,10 @@ export const authApi = createApi({
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
           const response = await queryFulfilled;
+          socket.emit('login', response.data.userData._id);
           setToken(response.data.accessToken);
           setUserData(JSON.stringify(response.data.userData));
           await dispatch(getMeApi.endpoints.getMe.initiate(null));
-        } catch (error) {}
-      },
-    }),
-    logoutUser: builder.mutation({
-      query() {
-        return {
-          url: 'logout',
-          credentials: 'include',
-        };
-      },
-      async onQueryStarted(args, { dispatch, queryFulfilled }) {
-        try {
-          removeToken();
-          removeUserData();
-          dispatch(logout());
         } catch (error) {}
       },
     }),
@@ -78,5 +65,4 @@ export const {
   useLoginUserMutation,
   useAdminLoginUserMutation,
   useRegisterUserMutation,
-  useLogoutUserMutation,
 } = authApi;

@@ -13,12 +13,10 @@ function AdminLogin() {
 
     const navigate = useNavigate();
     const onSubmit = (data) => {
-        console.log(data);
         adminLoginUser(data);
     };
 
     useEffect(() => {
-        console.log(isLoading, isError, error, isSuccess)
         if (isSuccess) {
             toast.success('You successfully logged in');
             navigate('/admin/dashboard');

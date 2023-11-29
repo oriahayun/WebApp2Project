@@ -14,12 +14,11 @@ import {
     DropdownMenu,
     DropdownItem
 } from 'reactstrap';
-import { useAppSelector } from '../redux/store';
-import { useLogoutUserMutation } from '../redux/api/authApi';
 import { toast } from 'react-toastify';
 import userImg from '../assets/images/user.png';
 import logoImg from '../assets/images/logo.png';
 import { getToken, getUserData } from '../utils/Utils';
+import { useLogoutUserMutation } from '../redux/api/getMeApi';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +33,7 @@ const Header = () => {
         if (isSuccess) {
             window.location.href = '/login';
         }
-        
+
         if (isError) {
             toast.error(error.data.message, {
                 position: 'top-right',
@@ -76,6 +75,12 @@ const Header = () => {
                                         <NavLink onClick={() => navigate('/admin/dashboard')}>Home</NavLink>
                                     </NavItem>
                                     <NavItem className='nav-item-responsive'>
+                                        <NavLink onClick={() => navigate('/admin/salons')}>Salons</NavLink>
+                                    </NavItem>
+                                    <NavItem className='nav-item-responsive'>
+                                        <NavLink onClick={() => navigate('/admin/appointments')}>Appointments</NavLink>
+                                    </NavItem>
+                                    <NavItem className='nav-item-responsive'>
                                         <NavLink onClick={() => navigate('/admin/users')}>Users</NavLink>
                                     </NavItem>
                                     <UncontrolledDropdown nav inNavbar>
@@ -96,9 +101,6 @@ const Header = () => {
                                         <NavLink onClick={() => navigate('/dashboard')}>Home</NavLink>
                                     </NavItem>
                                     <NavItem className='nav-item-responsive'>
-                                        <NavLink onClick={() => navigate('/salons')}>Salons</NavLink>
-                                    </NavItem>
-                                    <NavItem className='nav-item-responsive'>
                                         <NavLink onClick={() => navigate('/appointments')}>Appointments</NavLink>
                                     </NavItem>
                                     <UncontrolledDropdown nav inNavbar>
@@ -106,7 +108,7 @@ const Header = () => {
                                             <img src={userImg} alt="user" className='user-img' />
                                         </DropdownToggle>
                                         <DropdownMenu end>
-                                            <DropdownItem>
+                                            <DropdownItem onClick={() => navigate('/profile')}>
                                                 Profile
                                             </DropdownItem>
                                             <DropdownItem divider />

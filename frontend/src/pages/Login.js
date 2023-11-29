@@ -13,14 +13,13 @@ const Login = () => {
 
     const navigate = useNavigate();
     const onSubmit = (data) => {
-        console.log(data);
         loginUser(data);
     };
 
     useEffect(() => {
         if (isSuccess) {
             toast.success('You successfully logged in');
-            navigate('/');
+            navigate('/dashboard');
         }
         if (isError) {
             toast.error(error.data.message, {

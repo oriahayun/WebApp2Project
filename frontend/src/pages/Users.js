@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Card, UncontrolledDropdown, DropdownToggle, DropdownMenu, DropdownItem, CardBody, InputGroup, InputGroupText, Input, Badge, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import DataTable from 'react-data-table-component';
 import { useDeleteUserMutation, useGetUsersQuery } from '../redux/api/userApi';
@@ -8,6 +8,10 @@ import {
     ChevronDown, MoreVertical, Archive, Search, Trash2,
 } from 'react-feather';
 import { toast } from 'react-toastify';
+import Select from 'react-select';
+import socketIOClient from 'socket.io-client';
+
+const ENDPOINT = "http://localhost:3008";
 
 const renderRole = (row) => (
     <span className="text-truncate text-capitalize align-middle">
@@ -16,6 +20,27 @@ const renderRole = (row) => (
         </Badge>
     </span>
 );
+
+const statusOptions = [
+    { value: 'online', label: 'Online' },
+    { value: 'offline', label: 'Offline' },
+];
+
+const renderStatus = (row) => {
+    const color = row.status === 'online' ? 'success' : 'danger';
+    return (
+        <span className="text-truncate text-capitalize align-middle">
+            <Badge color={color} className='px-2 py-1' pill>
+                {row.status}
+            </Badge>
+        </span>
+    )
+};
+
+const roleOptions = [
+    { value: 'admin', label: 'Admin' },
+    { value: 'user', label: 'User' },
+];
 
 export const columns = () => [
     {
@@ -38,26 +63,16 @@ export const columns = () => [
     },
     {
         name: 'Role',
-        sortable: true,
         cell: (row) => renderRole(row),
     },
     {
         name: 'Location',
-        maxwidth: '100px',
         selector: (row) => `${row.location}`,
         sortable: true,
     },
     {
-        name: 'Latitude',
-        maxwidth: '100px',
-        selector: (row) => `${row.latitude}`,
-        sortable: true,
-    },
-    {
-        name: 'Longitutde',
-        maxwidth: '100px',
-        selector: (row) => `${row.longitude}`,
-        sortable: true,
+        name: 'Status',
+        cell: (row) => renderStatus(row),
     },
     {
         name: 'Actions',
@@ -81,6 +96,7 @@ export const columns = () => [
             }, [isLoading]);
             const handleDeleteUser = (id) => {
                 deleteUser(id);
+                setModalVisibility(false);
             }
             return (
                 <>
@@ -90,7 +106,7 @@ export const columns = () => [
                                 <DropdownToggle tag="div" className="btn btn-sm">
                                     <MoreVertical size={14} className="cursor-pointer action-btn" />
                                 </DropdownToggle>
-                                <DropdownMenu end>
+                                <DropdownMenu end container="body">
                                     <DropdownItem
                                         className="w-100"
                                         onClick={() => navigate(`/admin/users/edit/${row._id}`)}
@@ -103,7 +119,7 @@ export const columns = () => [
                                         <span className="align-middle">Delete</span>
                                     </DropdownItem>
                                 </DropdownMenu>
-                                
+
                             </UncontrolledDropdown>
                             <Modal isOpen={modalVisibility} toggle={() => setModalVisibility(!modalVisibility)}>
                                 <ModalHeader toggle={() => setModalVisibility(!modalVisibility)}>Confirm Delete?</ModalHeader>
@@ -130,19 +146,30 @@ export const columns = () => [
 ]
 
 const Users = () => {
+
     const [searchTerm, setSearchTerm] = useState('');
+    const [activeUsers, setActiveUsers] = useState([]);
+    const [currentRole, setCurrentRole] = useState({ value: '', label: 'Role...' });
+    const [currentStatus, setCurrentStatus] = useState({ value: '', label: 'Status...' })
     const queryParams = {
         q: searchTerm,
+        role: currentRole.value,
+        status: currentStatus.value,
     };
 
-    const { data: users, isError, isSuccess, error, isLoading } = useGetUsersQuery(queryParams);
-    
+    const { data: users, isError, isSuccess, error, isLoading, refetch } = useGetUsersQuery(queryParams);
     const paginationRowsPerPageOptions = [15, 30, 50, 100];
     const handleFilter = (q) => {
         setSearchTerm(q);
     };
 
-    console.log(users, 'ddd')
+    const handleRoleChange = (data) => {
+        setCurrentRole(data || { value: '', label: 'Role...' });
+    };
+
+    const handleStatusChange = (data) => {
+        setCurrentStatus(data || { value: '', label: 'Status...' });
+    };
     useEffect(() => {
         if (isSuccess) {
 
@@ -154,6 +181,21 @@ const Users = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);
+
+    useEffect(() => {
+        const socket = socketIOClient(ENDPOINT);
+
+        // Listening to the 'activeUsers' event emitted by the server
+        socket.on('activeUsers', (users) => {
+            setActiveUsers(users); // Set local state with active users
+        });
+
+        // Clean up the side effect when the component unmounts
+        return () => socket.disconnect();
+    }, []);
+    useEffect(() => {
+        refetch();
+    }, [activeUsers, refetch]);
     return (
         <div className='main-board'>
             <Container>
@@ -164,7 +206,7 @@ const Users = () => {
                 </Row>
                 <Card>
                     <CardBody>
-                        <Row className="justify-content-end">
+                        <Row className="justify-content-between">
                             <Col
                                 md="4"
                                 className="d-flex align-items-center"
@@ -184,9 +226,42 @@ const Users = () => {
                                     clear
                                 </Button>)}
                             </Col>
+                            <Col
+                                md="8"
+                            >
+                                <Row className="justify-content-end">
+                                    <Col md="4">
+                                        <Select
+                                            isClearable
+                                            placeholder="Status..."
+                                            className="react-select"
+                                            classNamePrefix="select"
+                                            options={statusOptions}
+                                            value={currentStatus}
+                                            onChange={(data) => { handleStatusChange(data); }}
+                                        />
+                                    </Col>
+                                    <Col
+                                        md="4"
+                                    >
+                                        <Select
+                                            isClearable
+                                            placeholder="Role..."
+                                            className="react-select"
+                                            classNamePrefix="select"
+                                            options={roleOptions}
+                                            value={currentRole}
+                                            onChange={(data) => { handleRoleChange(data); }}
+                                        />
+                                    </Col>
+                                </Row>
+
+                            </Col>
+
                         </Row>
                     </CardBody>
                     <DataTable
+                        title="Users"
                         data={users}
                         responsive
                         className="react-dataTable"

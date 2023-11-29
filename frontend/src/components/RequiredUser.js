@@ -5,7 +5,7 @@ import { getToken } from '../utils/Utils';
 
 const RequireUser = ({ allowedRoles }) => {
     const accessToken = getToken();
-
+    
     const { data: user } = getMeApi.endpoints.getMe.useQuery(null);
     const location = useLocation();
 

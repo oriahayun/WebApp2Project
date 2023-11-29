@@ -19,10 +19,9 @@ export const userApi = createApi({
     tagTypes: ['Users'],
     endpoints: (builder) => ({
         updateUser: builder.mutation({
-            query({id, user}) {
-                console.log(id, user, 'fpppppp');
+            query({ id, user }) {
                 return {
-                    url: `/updateUser/${id}`,
+                    url: `/update/${id}`,
                     method: "PUT",
                     credentials: "include",
                     body: user,
@@ -79,14 +78,14 @@ export const userApi = createApi({
         }),
         deleteUser: builder.mutation({
             query(id) {
-              return {
-                url: `/deleteUser/${id}`,
-                method: "DELETE",
-                credentials: "include",
-              };
+                return {
+                    url: `/delete/${id}`,
+                    method: "DELETE",
+                    credentials: "include",
+                };
             },
             invalidatesTags: [{ type: "Users", id: "LIST" }],
-          }),
+        }),
     })
 });
 

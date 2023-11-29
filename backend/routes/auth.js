@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const { registerValidation, loginValidation } = require('../utils/validation');
-const verifyUser = require('../utils/verifyToken');
 
 const saltLength = 10;
 // eslint-disable-next-line prefer-const
@@ -71,16 +70,18 @@ router.post('/login', async (req, res) => {
   const tokenExpiry = req.body.remember ? '60d' : authConfig.expireTime;
   const validPass = await bcrypt.compare(req.body.password, user.password);
   if (!validPass) return res.status(400).send({ message: 'Email or password not found!' });
-
+  const updatedUser = await User.findOneAndUpdate({ _id: user._id }, { status: 'online' }, {
+    new: true,
+  }).select('-password -__v');
   // validation passed, create tokens
-  const accessToken = jwt.sign({ _id: user._id }, process.env.AUTH_TOKEN_SECRET, { expiresIn: tokenExpiry });
-  const refreshToken = jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: authConfig.refreshTokenExpireTime });
+  const accessToken = jwt.sign({ _id: updatedUser._id }, process.env.AUTH_TOKEN_SECRET, { expiresIn: tokenExpiry });
+  const refreshToken = jwt.sign({ _id: updatedUser._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: authConfig.refreshTokenExpireTime });
   refreshTokens.push(refreshToken);
 
   // remove password
-  delete user._doc.password;
+  delete updatedUser._doc.password;
 
-  const userData = user;
+  const userData = updatedUser;
   const response = {
     userData,
     accessToken,
@@ -111,16 +112,18 @@ router.post('/admin/login', async (req, res) => {
   const tokenExpiry = req.body.remember ? '60d' : authConfig.expireTime;
   const validPass = await bcrypt.compare(req.body.password, user.password);
   if (!validPass) return res.status(400).send({ message: 'Email or password not found!' });
-
+  const updatedUser = await User.findOneAndUpdate({ _id: user._id }, { status: 'online' }, {
+    new: true,
+  }).select('-password -__v');
   // validation passed, create tokens
-  const accessToken = jwt.sign({ _id: user._id }, process.env.AUTH_TOKEN_SECRET, { expiresIn: tokenExpiry });
-  const refreshToken = jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: authConfig.refreshTokenExpireTime });
+  const accessToken = jwt.sign({ _id: updatedUser._id }, process.env.AUTH_TOKEN_SECRET, { expiresIn: tokenExpiry });
+  const refreshToken = jwt.sign({ _id: updatedUser._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: authConfig.refreshTokenExpireTime });
   refreshTokens.push(refreshToken);
 
   // remove password
-  delete user._doc.password;
+  delete updatedUser._doc.password;
 
-  const userData = user;
+  const userData = updatedUser;
   const response = {
     userData,
     accessToken,
@@ -133,11 +136,5 @@ router.post('/admin/login', async (req, res) => {
   });
   return res.send(response);
 });
-
-router.get('/logout', async (req, res) => {
-  res.cookie('refreshToken', '', { maxAge: 1 });
-  return res.status(200).json({ status: 'success' });
-});
-
 
 module.exports = router;

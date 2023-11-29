@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export const isObjEmpty = (obj) => Object.keys(obj).length === 0;
 
 export const getToken = () => {
@@ -22,6 +24,8 @@ export const setUserData = (val) => {
     localStorage.setItem('userData', val);
 }
 
-export const paginationRowsPerPageOptions = () => {
-    return [15, 30, 50, 100];
+export const getDateFormat = (formattedDate) => {
+    const formattedDateMoment = moment(`${formattedDate}`, 'YYYY-MM-DD HH:mm A');
+    const formattedDateTime = moment(formattedDateMoment).format('llll')
+    return formattedDateTime;
 };

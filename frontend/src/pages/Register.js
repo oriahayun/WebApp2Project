@@ -33,13 +33,6 @@ const Register = () => {
         if (isObjEmpty(errors)) {
             data.location = addressObj;
             data.gender = data.gender.value;
-            console.log(data, addressObj.geometry.location);
-            const { lat, lng } = addressObj.geometry.location;
-            const latitude = lat();
-            const longitude = lng();
-            console.log('Latitude:', latitude);
-            console.log('Longitude:', longitude);
-
             registerUser(data);
         }
 
@@ -52,14 +45,12 @@ const Register = () => {
         }
 
         if (isError) {
-            console.log(error);
             toast.error(error.data, {
                 position: 'top-right',
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);
-    console.log(errors)
 
     return (
         <div className="auth-wrapper auth-v1 px-2">
