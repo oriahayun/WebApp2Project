@@ -61,6 +61,9 @@ const Header = () => {
                                         <NavLink onClick={() => navigate('/')}>Home</NavLink>
                                     </NavItem>
                                     <NavItem className='nav-item-responsive'>
+                                        <NavLink onClick={() => navigate('/admin/login')}>Admin Login</NavLink>
+                                    </NavItem>
+                                    <NavItem className='nav-item-responsive'>
                                         <NavLink onClick={() => navigate('/login')}>Login</NavLink>
                                     </NavItem>
                                     <NavItem className='nav-item-responsive'>
